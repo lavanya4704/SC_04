@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>To-Do List App</title>
+<style>
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  margin: 50px auto;
+  padding: 25px;
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0px 10px 30px rgba(0,0,0,0.1);
+  display: inline-block;
+  text-align: left;
+  width: 350px;
+  transition: transform 0.3s ease;
+}
+
+.container:hover {
+  transform: translateY(-5px);
+}
+
+h2 {
+  color: #3a4a6d;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+input {
+  padding: 10px;
+  margin: 8px 0;
+  width: calc(100% - 20px);
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border 0.3s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: #6c7ae0;
+}
+
+button {
+  padding: 10px 15px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+#taskList {
+  list-style-type: none;
+  padding: 0;
+  margin-top: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.task {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background: white;
+  margin: 8px 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  border-left: 4px solid #6c7ae0;
+}
+
+.task:hover {
+  transform: translateX(5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.completed {
+  text-decoration: line-through;
+  color: #a0a0a0;
+  border-left-color: #4CAF50;
+  background-color: #f8f8f8;
+}
+
+.task-text {
+  flex-grow: 1;
+  margin-right: 10px;
+  word-break: break-word;
+}
+
+.task-due {
+  font-size: 12px;
+  color: #666;
+  margin-right: 10px;
+}
+
+.task-buttons button {
+  background: none;
+  border: none;
+  padding: 5px;
+  margin-left: 5px;
+  font-size: 16px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.task-buttons button:hover {
+  opacity: 1;
+}
+
+.complete-btn {
+  color: #4CAF50;
+}
+
+.edit-btn {
+  color: #FFC107;
+}
+
+.delete-btn {
+  color: #F44336;
+}
+
+.add-btn {
+  background-color: #6c7ae0;
+  color: white;
+  width: 100%;
+}
+
+.add-btn:hover {
+  background-color: #5a68c7;
+}
+
+.priority-high {
+  border-left-color: #F44336;
+}
+
+.priority-medium {
+  border-left-color: #FFC107;
+}
+
+.priority-low {
+  border-left-color: #4CAF50;
+}
+
+.empty-state {
+  text-align: center;
+  color: #a0a0a0;
+  padding: 20px;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Animation for new tasks */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.new-task {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Responsive design */
+@media (max-width: 400px) {
+  .container {
+    width: 90%;
+    padding: 15px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>📝 To-Do List</h2>
+  <input type="text" id="taskInput" placeholder="What needs to be done?">
+  <input type="datetime-local" id="taskTime">
+  <select id="taskPriority" style="width: 100%; padding: 10px; margin: 8px 0; border: 2px solid #e0e0e0; border-radius: 6px;">
+    <option value="low">Low Priority</option>
+    <option value="medium" selected>Medium Priority</option>
+    <option value="high">High Priority</option>
+  </select>
+  <button class="add-btn" onclick="addTask()">➕ Add Task</button>
+  <ul id="taskList">
+    <div class="empty-state" id="emptyState">No tasks yet. Add one above!</div>
+  </ul>
+</div>
+
+<script>
+function addTask() {
+  let taskText = document.getElementById("taskInput").value.trim();
+  let taskTime = document.getElementById("taskTime").value;
+  let taskPriority = document.getElementById("taskPriority").value;
+  
+  if (taskText === "") {
+    alert("Please enter a task description");
+    return;
+  }
+  
+  // Hide empty state if it's the first task
+  if (document.getElementById("emptyState")) {
+    document.getElementById("emptyState").style.display = "none";
+  }
+  
+  let li = document.createElement("li");
+  li.className = `task new-task priority-${taskPriority}`;
+  
+  let dueText = taskTime ? new Date(taskTime).toLocaleString() : "No deadline";
+  
+  li.innerHTML = `
+    <div class="task-text">${taskText}</div>
+    <div class="task-due">${dueText}</div>
+    <div class="task-buttons">
+      <button class="complete-btn" onclick="completeTask(this)">✓</button>
+      <button class="edit-btn" onclick="editTask(this)">✏️</button>
+      <button class="delete-btn" onclick="deleteTask(this)">✕</button>
+    </div>
+  `;
+  
+  document.getElementById("taskList").appendChild(li);
+  
+  // Clear inputs
+  document.getElementById("taskInput").value = "";
+  document.getElementById("taskTime").value = "";
+  
+  // Add event listener for animation end
+  li.addEventListener('animationend', () => {
+    li.classList.remove('new-task');
+  });
+}
+
+function completeTask(btn) {
+  const taskItem = btn.closest('.task');
+  taskItem.classList.toggle("completed");
+  
+  // Move completed tasks to bottom
+  if (taskItem.classList.contains("completed")) {
+    document.getElementById("taskList").appendChild(taskItem);
+  }
+}
+
+function editTask(btn) {
+  const taskItem = btn.closest('.task');
+  const taskText = taskItem.querySelector('.task-text');
+  const taskDue = taskItem.querySelector('.task-due');
+  
+  let newTask = prompt("Edit task description:", taskText.textContent);
+  if (newTask !== null) {
+    taskText.textContent = newTask.trim();
+  }
+  
+  let newDue = prompt("Edit due date/time (leave blank for no deadline):", taskDue.textContent);
+  if (newDue !== null) {
+    taskDue.textContent = newDue.trim() || "No deadline";
+  }
+}
+
+function deleteTask(btn) {
+  const taskItem = btn.closest('.task');
+  taskItem.style.transform = "translateX(100%)";
+  taskItem.style.opacity = "0";
+  
+  setTimeout(() => {
+    taskItem.remove();
+    
+    // Show empty state if no tasks left
+    if (document.getElementById("taskList").children.length === 0) {
+      document.getElementById("emptyState").style.display = "block";
+    }
+  }, 300);
+}
+
+// Allow adding tasks with Enter key
+document.getElementById("taskInput").addEventListener("keypress", function(e) {
+  if (e.key === "Enter") {
+    addTask();
+  }
+});
+</script>
+</body>
+</html>
